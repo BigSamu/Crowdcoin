@@ -3,18 +3,28 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "test": "mocha",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
   },
   "dependencies": {
+    "bootstrap": "^5.0.2",
+    "fs-extra": "^10.0.0",
+    "ganache-cli": "^6.12.2",
+    "mocha": "^9.0.3",
     "next": "11.0.1",
     "react": "17.0.2",
-    "react-dom": "17.0.2"
+    "react-bootstrap": "^1.6.1",
+    "react-bootstrap-icons": "^1.5.0",
+    "react-dom": "17.0.2",
+    "solc": "^0.8.6",
+    "truffle-hdwallet-provider": "^1.0.17",
+    "web3": "^1.5.0"
   },
   "devDependencies": {
-    "eslint": "7.31.0",
-    "eslint-config-next": "11.0.1"
+    "eslint": "^7.31.0",
+    "eslint-config-next": "^11.0.1"
   }
 }
