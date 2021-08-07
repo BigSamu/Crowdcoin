@@ -61,7 +61,6 @@ contract Campaign {
         uint256 value,
         address payable recipient
     ) public restricted {
-        //require(approvers[msg.sender]);
 
         Request storage newRequest = requests[resquestsCount];
 

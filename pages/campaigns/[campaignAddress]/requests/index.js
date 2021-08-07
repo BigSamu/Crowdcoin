@@ -2,25 +2,37 @@ import React from 'react'
 import Head from 'next/head'
 import Link from 'next/link'
 
-import { Button} from 'react-bootstrap';
+import { Button } from 'react-bootstrap';
 
-import Campaign from '../../ethereum/campaign'
+import RequestsTable from '../../../../components/RequestsTable';
+
+import Campaign from '../../../../ethereum/campaign'
 
 export const getServerSideProps = async (context) => {
   const { campaignAddress } = context.query;
   const campaign = Campaign(campaignAddress);
+  const requestCount = await campaign.methods.getRequestsCount().call();
+  const approversCount = await campaign.methods.approversCount().call();
   
+  const requestsRaw = await Promise.all(
+    Array(parseInt(requestCount))
+      .fill()
+      .map((element, index) => {
+        return campaign.methods.requests(index).call();
+    })
+  );
+
+  const requests = await JSON.parse(JSON.stringify(requestsRaw))
+
   return {
-    props: {
-      campaignAddress: campaignAddress
-    },
+    props: { campaignAddress, requests, requestCount, approversCount }
   };
 };
 
 const RequestPage = (props) => {
 
-  const {campaignAddress} = props;
-
+  const {campaignAddress, requests, requestCount, approversCount} = props;
+  
   return (
     <>
       <Head>
@@ -37,14 +49,14 @@ const RequestPage = (props) => {
       </div>
 
       <div className="mt-4">
-      
+        <RequestsTable
+          campaignAddress = {campaignAddress} 
+          requests = {requests}
+          approversCount = {approversCount} 
+        />
       </div>
 
-      <div className="mt-4">
-        <Link href={`/campaigns/${campaignAddress}`}>
-          Go back
-        </Link>
-      </div>
+      <p> Found {requestCount} requests </p>
     </>
   )
 }

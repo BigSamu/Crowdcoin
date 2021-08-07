@@ -11,6 +11,8 @@ import {
   Spinner,
 } from 'react-bootstrap';
 
+import LoadingButton from './LoadingButton'
+
 import Campaign from '../ethereum/campaign'
 import web3 from '../ethereum/web3';
 
@@ -41,6 +43,7 @@ const NewRequestForm = (props) => {
     const campaign = Campaign(campaignAddress);
    
     setIsLoading(true);
+
     setErrorMessages('');
     try {
       const accounts = await web3.eth.getAccounts();
@@ -51,22 +54,21 @@ const NewRequestForm = (props) => {
       ).send({
         from: accounts[0],
       });
+
       setIsSuccesful(true);
+      setNewRequest({
+        description: '',
+        amount: '',
+        recipientAddress: ''
+      });
       
     } catch (err) {
       setIsSuccesful(false);
       setErrorMessages(err.message);
     }
-
+    
     setIsLoading(false);
-    setNewRequest({
-      description: '',
-      amount: '',
-      recipientAddress: ''
-    });
-
-    //router.replace(`/campaigns/${campaignSummary.address}`)
-
+    
   };
 
   return (
@@ -143,24 +145,15 @@ const NewRequestForm = (props) => {
           </Col>
         </Form.Group>
         
-        
-        <Button variant="success" type="submit" disabled={isLoading} className="mt-1">
-          {isLoading ? (
-            <>
-              <Spinner
-                as="span"
-                animation="border"
-                size="sm"
-                role="status"
-                aria-hidden="true"
-              />
-              <span> Loading</span>
-            </>
-          ) : (
-            <span>Create</span>
-          )}
-        </Button>
-        
+        <div className="mt-1">
+          <LoadingButton 
+            buttonTitle="Create"
+            buttonVariant="success" 
+            buttonType="submit" 
+            isLoading={isLoading}
+          />
+        </div>
+             
       </Form>
     </>
   )

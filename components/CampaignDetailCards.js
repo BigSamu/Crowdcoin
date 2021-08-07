@@ -9,7 +9,6 @@ const CampaignDetailCards = (props) => {
 
   const {campaignSummary} = props;
  
-
   return (
     <Row xs={1} md={2} className="g-2" >
 
