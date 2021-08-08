@@ -56,7 +56,11 @@ const RequestPage = (props) => {
         />
       </div>
 
-      <p> Found {requestCount} requests </p>
+      <div className="mt-4">
+        <Link href={`/campaigns/${campaignAddress}`}>
+          Go Back
+        </Link>
+      </div>
     </>
   )
 }

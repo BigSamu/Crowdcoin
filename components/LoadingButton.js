@@ -17,7 +17,7 @@ const LoadingButton = (props) => {
         disabled={isLoading || buttonDisabled} 
         size={buttonSize}
         onClick = {callback}
-        className={nonPaddingY ? "py-0 w-100" : "w-100"}
+        className={nonPaddingY ? "py-0 w-100" : ""}
       >
         {isLoading ? (
           <>

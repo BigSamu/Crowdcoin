@@ -41,10 +41,11 @@ const NewRequestForm = (props) => {
     e.preventDefault();
     
     const campaign = Campaign(campaignAddress);
-   
+    
+    setIsSuccesful(false);
     setIsLoading(true);
-
     setErrorMessages('');
+    
     try {
       const accounts = await web3.eth.getAccounts();
       await campaign.methods.createRequest(
@@ -74,6 +75,7 @@ const NewRequestForm = (props) => {
   return (
     <>
       <h5 className="mb-3"> Create a request: </h5>
+
       {errorMessages !== '' ? (
         <Alert variant="danger">
           <Alert.Heading as="h5"> Error</Alert.Heading>
@@ -85,7 +87,7 @@ const NewRequestForm = (props) => {
       {isSuccesful && !isLoading ? (
         <Alert variant="success">
           <Alert.Heading as="h5"> Great!</Alert.Heading>
-          <small className="my-0">You crearte a new request for your campaign!</small>
+          <small className="my-0">You create a new request for your campaign!</small>
         </Alert>
       ) : (
         ''

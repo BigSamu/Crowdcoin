@@ -1,7 +1,7 @@
 import React, {useState} from 'react'
 import { useRouter } from 'next/router'
 
-import {Button, Table} from 'react-bootstrap';
+import {Table, Alert} from 'react-bootstrap';
 
 import LoadingButton from './LoadingButton'
 
@@ -12,11 +12,15 @@ const RequestsTable = (props) => {
 
   const { campaignAddress, requests, approversCount } = props;
 
+  const [isLoading, setIsLoading] = useState(false);
   const [isLoadingApproveArray, setIsLoadingApproveArray] = useState(Array(parseInt(requests.length)).fill(false));
   const [isLoadingFinalizeArray, setIsLoadingFinalizeArray] = useState(Array(parseInt(requests.length)).fill(false));
+  
 
   const [errorMessages, setErrorMessages] = useState('');
-  const [isSuccesful, setIsSuccesful] = useState(false);
+  const [isSuccesfulApprove, setIsSuccesfulApprove] = useState(false);
+  const [isSuccesfulFinalize, setIsSuccesfulFinalize] = useState(false);
+  const [currentRequestId, setCurrentRequestId] = useState('');
   
   const router = useRouter();
 
@@ -25,23 +29,29 @@ const RequestsTable = (props) => {
     let campaign = Campaign(campaignAddress);
     let auxIsLoadingApproveArray = [...isLoadingApproveArray]
     
+    setIsSuccesfulApprove(false);
     auxIsLoadingApproveArray[requestId] = true;
-    setIsLoadingApproveArray(auxIsLoadingApproveArray)
+    setIsLoadingApproveArray(auxIsLoadingApproveArray);
+    setIsLoading(true);
+    setErrorMessages('');
     
     try {
       let accounts = await web3.eth.getAccounts();
       await campaign.methods.approveRequest(requestId).send({
         from: accounts[0]
       });
-      setIsSuccesful(true);
+      setIsSuccesfulApprove(true);
 
     } catch (err) {
-      setIsSuccesful(false);
+      setIsSuccesfulApprove(false);
       setErrorMessages(err.message);
     }
 
     auxIsLoadingApproveArray[requestId] = false;
-    setIsLoadingApproveArray(auxIsLoadingApproveArray)
+    setIsLoadingApproveArray(auxIsLoadingApproveArray);
+    setIsLoading(false);
+
+    setCurrentRequestId(requestId);
     
     router.replace(`/campaigns/${campaignAddress}/requests`)
   }
@@ -51,29 +61,61 @@ const RequestsTable = (props) => {
     let campaign = Campaign(campaignAddress);
     let auxIsLoadingFinalizeArray = [...isLoadingFinalizeArray]
     
+    setIsSuccesfulFinalize(false);
+    setIsSuccesfulApprove(false);
     auxIsLoadingFinalizeArray[requestId] = true;
-    setIsLoadingFinalizeArray(auxIsLoadingFinalizeArray)
+    setIsLoadingFinalizeArray(auxIsLoadingFinalizeArray);
+    setIsLoading(true);
+    setErrorMessages('');
     
     try {
       let accounts = await web3.eth.getAccounts();
       await campaign.methods.finalizeRequest(requestId).send({
         from: accounts[0]
       });
-      setIsSuccesful(true);
+      setIsSuccesfulFinalize(true);
 
     } catch (err) {
-      setIsSuccesful(false);
+      setIsSuccesfulFinalize(false);
       setErrorMessages(err.message);
     }
 
     auxIsLoadingFinalizeArray[requestId] = false;
-    setIsLoadingFinalizeArray(auxIsLoadingFinalizeArray)
+    setIsLoadingFinalizeArray(auxIsLoadingFinalizeArray);
+    setIsLoading(false);
+
+    setCurrentRequestId(requestId);
     
     router.replace(`/campaigns/${campaignAddress}/requests`)
   }
 
   return (
     <>
+      {errorMessages !== '' ? (
+        <Alert variant="danger">
+          <Alert.Heading as="h5"> Error</Alert.Heading>
+          <small className="my-0">{errorMessages}</small>
+        </Alert>
+      ) : (
+        ''
+      )}
+      {isSuccesfulApprove && !isLoading ? (
+        <Alert variant="success">
+          <Alert.Heading as="h5"> Great!</Alert.Heading>
+          <small className="my-0"> Request # {currentRequestId} receive your approval!</small>
+        </Alert>
+      ) : (
+        ''
+      )}
+      {isSuccesfulFinalize && !isLoading ? (
+        <Alert variant="success">
+          <Alert.Heading as="h5"> Great!</Alert.Heading>
+          <small className="my-0"> Request # {currentRequestId} has been finalize! Funds transfered</small>
+        </Alert>
+      ) : (
+        ''
+      )}
+
       <Table bordered size="sm">
         <thead className="align-middle">
           <tr className="table-secondary">
@@ -89,7 +131,7 @@ const RequestsTable = (props) => {
         <tbody className="align-middle">
           {
             requests && requests.map((request,index) => 
-              <tr key={index} className={request.complete ? "table-success" : ""}>
+              <tr key={index} className={request.complete ? "table-warning" : ""}>
                 <td className="text-center">{index+1}</td>
                 <td>{request.description}</td>
                 <td className="text-center">{web3.utils.fromWei(request.value, 'ether')}</td>
